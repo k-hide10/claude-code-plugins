@@ -1,0 +1,15 @@
+{
+  "name": "hide10",
+  "owner": {
+    "name": "hideto",
+    "url": "https://github.com/k-hide10"
+  },
+  "description": "hide10 が作った Claude Code のプラグイン（mod、Skill など）を配布するマーケットプレイス",
+  "plugins": [
+    {
+      "name": "effort-auto",
+      "source": "./plugins/effort-auto",
+      "description": "依頼の難しさを Haiku が判定し、Claude の考える深さ（effort）を依頼ごとに自動で切り替える mod"
+    }
+  ]
+}
