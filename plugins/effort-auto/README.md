@@ -26,6 +26,8 @@ Haikuが使うトークンは1回あたり入力1,000前後（長い依頼では
 
 ## 入れ方
 
+### ターミナルで使っている場合
+
 Claude Codeの入力欄で次の1行を実行します。
 
 ```
@@ -39,7 +41,25 @@ claude plugin marketplace add k-hide10/claude-code-plugins
 claude plugin install effort-auto@hide10
 ```
 
-入れたあとに始めたセッションから動きます。
+### デスクトップアプリで使っている場合
+
+デスクトップアプリで`/plugin`と打つと設定の「プラグイン」画面が開きますが、この画面からは入れられません。
+代わりに、新しいセッションでClaudeに次の文を送ってください。
+`claude`コマンドを入れていなくても、デスクトップアプリに入っているClaude Codeを使って入れられます（Macで確認済み）。
+
+```
+Claude Code のプラグイン effort-auto を入れたいです。次のとおり進めて。
+1. claude コマンドがあればそれを使う。なければ、デスクトップアプリに入っている Claude Code を使う
+   （~/Library/Application Support/Claude/claude-code/ の中の claude.app/Contents/MacOS/claude で、一番新しい版のもの）
+2. その claude で、次の 2 つを順に実行する
+   plugin marketplace add k-hide10/claude-code-plugins
+   plugin install effort-auto@hide10
+3. plugin list で effort-auto@hide10 が入ったか確かめて、結果を教えて
+```
+
+実行してよいか聞かれたら、許可してください。
+
+どちらの場合も、入れたあとに始めたセッションから動きます。
 
 ## 使い方
 

@@ -13,7 +13,8 @@ hide10が作ったClaude Codeのプラグイン（mod、Skillなど）の配布�
 
 ## 入れ方
 
-Claude Codeの入力欄で、入れたいプラグインの名前を指定して実行します。
+ターミナルで使っている場合は、Claude Codeの入力欄で、入れたいプラグインの名前を指定して実行します。
+デスクトップアプリの場合は、各プラグインの説明にある手順で入れてください。
 
 ```
 /plugin install effort-auto --marketplace k-hide10/claude-code-plugins
