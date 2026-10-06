@@ -22,6 +22,34 @@ const LOG_FILE = '.claude/mod-data/effort-auto.jsonl'
 // effort を変えてもキャッシュが残るモデル（公式 prompt-caching ドキュメント）。それ以外では深さを変えない
 const CACHE_SAFE_MODEL = /(opus|sonnet)-5-5|fable-5-1/
 
+// 上のモデルでも、Bedrock、Google Cloud、ゲートウェイなどを経由するとキャッシュが作り直しになる。
+// その経路を選ぶ設定が入っていたら、判定も切り替えもしない
+function isOnFlag(value: string | undefined): boolean {
+  const v = value?.trim().toLowerCase()
+  return !!v && v !== '0' && v !== 'false'
+}
+
+async function isCacheSafeRoute($: EngineInterface): Promise<boolean> {
+  // 読む設定の名前は、入れる前に一覧できるよう 1 つずつ書く
+  const flags = [
+    await $.env.get('CLAUDE_CODE_USE_BEDROCK'),
+    await $.env.get('CLAUDE_CODE_USE_VERTEX'),
+    await $.env.get('CLAUDE_CODE_USE_FOUNDRY'),
+    await $.env.get('CLAUDE_CODE_USE_MANTLE'),
+    await $.env.get('CLAUDE_CODE_USE_ANTHROPIC_AWS'),
+    await $.env.get('CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS'),
+  ]
+  if (flags.some(isOnFlag)) {
+    return false
+  }
+  // 接続先を Anthropic 以外（社内のゲートウェイなど）に向けている場合も対象外
+  const baseUrl = (await $.env.get('ANTHROPIC_BASE_URL'))?.trim()
+  return !baseUrl || /^https:\/\/api\.anthropic\.com\/?$/.test(baseUrl)
+}
+
+// 接続の経路はセッションの途中で変わらないので、始まったときに 1 回だけ調べる
+let routeOk = true
+
 // 人が打った依頼ではないもの（バックグラウンドの通知、ほかのセッションからの連絡、定期実行、観察役、mod）は判定しない
 const SKIP_ORIGINS = new Set([
   'task-notification',
@@ -175,7 +203,8 @@ export const register: Register = on => {
       description: '考える深さの自動振り分け: 直近の判定を見る（on / off で切り替え）',
       argumentHint: '[on|off]',
     })
-    $.ui.status('考える深さ: 自動振り分けオン')
+    routeOk = await isCacheSafeRoute($)
+    $.ui.status(routeOk ? '考える深さ: 自動振り分けオン' : '考える深さ: この接続方法は対象外のため、自動振り分けは動きません')
 
     return next(e)
   })
@@ -186,6 +215,12 @@ export const register: Register = on => {
     }
     // 作業中に送った依頼は、動いているターンの中で読まれるので深さを変えられない。判定も表示の書き換えもしない
     if (e.turnId !== undefined && !e.wait) {
+      return next(e)
+    }
+    if (!routeOk) {
+      pending = undefined
+      $.ui.status(`考える深さ: ${label(usual)}のまま（この接続方法は対象外）`)
+
       return next(e)
     }
     if (!CACHE_SAFE_MODEL.test(await $.session.model())) {
@@ -265,7 +300,7 @@ export const register: Register = on => {
     }
     // 判定しないときに使われる深さを覚えて、表示に使う（Claude Code の設定で決まる）
     usual = e.effort ?? usual
-    if (active === undefined || !CACHE_SAFE_MODEL.test(e.model)) {
+    if (active === undefined || !routeOk || !CACHE_SAFE_MODEL.test(e.model)) {
       return yield* next(e)
     }
     const effort = active.effort

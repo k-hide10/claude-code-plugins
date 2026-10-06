@@ -1,6 +1,6 @@
 {
   "name": "effort-auto",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "依頼の難しさを Haiku が判定し、Claude の考える深さ（effort）を依頼ごとに自動で切り替える mod",
   "author": {
     "name": "hideto",

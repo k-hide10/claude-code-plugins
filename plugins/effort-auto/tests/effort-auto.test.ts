@@ -16,6 +16,9 @@ type Reply = { isAnswered: boolean; text?: string }
 // メインの会話のモデル。対象外のモデルの試験だけ差し替える
 let MODEL = 'claude-opus-5-5'
 
+// 設定（環境変数）の値。経路の試験だけ差し替える
+let ENV: Record<string, string> = { HOME: '/home/tester' }
+
 // 何も答えない層の代わりに、テストがエンジン側として答える
 // reply に並びを渡すと、判定のたびに順に返す（最後のものを繰り返す）
 function engine(on: any, seen: Seen[], replies: Reply | Reply[], s: Spy = spy()) {
@@ -39,7 +42,7 @@ function engine(on: any, seen: Seen[], replies: Reply | Reply[], s: Spy = spy())
   })
   on('clock.now', () => ({ value: 1_000_000 }))
   on('session.model', () => ({ value: MODEL }))
-  on('env.get', () => ({ value: '/home/tester' }))
+  on('env.get', (_$: unknown, e: any) => ({ value: e.name in ENV ? ENV[e.name] : undefined }))
   on('fs.read', () => ({ value: '' }))
   on('fs.write', (_$: unknown, e: any) => {
     s.writes.push(e.text)
@@ -252,4 +255,50 @@ test('記録は使う人のホームに書く', async ($: any, on: any) => {
   engine(on, seen, { isAnswered: true, text: '普通: 文章の推敲' }, s)
   await runTurn($, 'この文章を読みやすくして')
   expect(s.paths.some(p => p === '/home/tester/.claude/mod-data/effort-auto.jsonl')).toBe(true)
+})
+
+// Bedrock や Google Cloud などの経路を選ぶ設定が入っていると、判定も切り替えもしない
+async function expectSkippedRoute($: any, on: any, flag: string, value: string) {
+  ENV = { HOME: '/home/tester', [flag]: value }
+  try {
+    const seen: Seen[] = []
+    const s = spy()
+    engine(on, seen, { isAnswered: true, text: '簡単: 誤字の修正' }, s)
+    on('command.register', () => ({ value: undefined }))
+    on('session.start', (_$: unknown, e: any) => ({ cwd: e.cwd }))
+    await $.session.start({ cwd: '/tmp', surface: 'terminal', isInteractive: true })
+    await runTurn($, 'ここの誤字を直して')
+    expect(s.judgeCalls).toBe(0)
+    expect(seen[0].effort).toBe('max')
+    expect(s.statuses.some(t => String(t).includes('この接続方法は対象外'))).toBe(true)
+  } finally {
+    ENV = { HOME: '/home/tester' }
+  }
+}
+
+test('Bedrock 経由では判定も切り替えもしない', async ($: any, on: any) => {
+  await expectSkippedRoute($, on, 'CLAUDE_CODE_USE_BEDROCK', '1')
+})
+
+test('Google Cloud 経由では判定も切り替えもしない', async ($: any, on: any) => {
+  await expectSkippedRoute($, on, 'CLAUDE_CODE_USE_VERTEX', 'true')
+})
+
+test('Anthropic 以外のゲートウェイ経由では判定も切り替えもしない', async ($: any, on: any) => {
+  await expectSkippedRoute($, on, 'ANTHROPIC_BASE_URL', 'https://gateway.example.com')
+})
+
+test('ふつうの接続（設定なし、または接続先が Anthropic）なら切り替える', async ($: any, on: any) => {
+  ENV = { HOME: '/home/tester', ANTHROPIC_BASE_URL: 'https://api.anthropic.com', CLAUDE_CODE_USE_BEDROCK: '0' }
+  try {
+    const seen: Seen[] = []
+    engine(on, seen, { isAnswered: true, text: '簡単: 誤字の修正' })
+    on('command.register', () => ({ value: undefined }))
+    on('session.start', (_$: unknown, e: any) => ({ cwd: e.cwd }))
+    await $.session.start({ cwd: '/tmp', surface: 'terminal', isInteractive: true })
+    await runTurn($, 'ここの誤字を直して')
+    expect(seen[0].effort).toBe('medium')
+  } finally {
+    ENV = { HOME: '/home/tester' }
+  }
 })
