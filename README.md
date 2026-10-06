@@ -9,6 +9,8 @@ hide10が作ったClaude Codeのプラグイン（mod、Skillなど）の配布�
 |---|---|---|
 | [effort-auto](plugins/effort-auto/) | mod | 依頼の難しさをHaikuが判定し、Claudeの考える深さを依頼ごとに自動で切り替える |
 
+![effort-autoの仕組み：依頼を送るとHaikuが難しさを判定し、考える深さを中、高、最大に切り替える](plugins/effort-auto/images/flow.png)
+
 ## 入れ方
 
 Claude Codeの入力欄で、入れたいプラグインの名前を指定して実行します。
