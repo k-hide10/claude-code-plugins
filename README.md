@@ -29,6 +29,11 @@ claude plugin install effort-auto@hide10
 
 更新が出たときは `claude plugin update effort-auto@hide10` で最新版になります。
 
+## 作者
+
+hide10（ひでと）が作っています。
+新しいプラグインや使い方は、X（[@hideto_ai](https://x.com/hideto_ai)）でお知らせします。
+
 ## ライセンス
 
 MIT
