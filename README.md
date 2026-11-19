@@ -8,6 +8,7 @@ hide10が作ったClaude Codeのプラグイン（mod、Skillなど）の配布�
 | プラグイン | 種類 | できること |
 |---|---|---|
 | [effort-auto](plugins/effort-auto/) | mod | 依頼の難しさをHaikuが判定し、Claudeの考える深さを依頼ごとに自動で切り替える |
+| [dopa-backdrop](plugins/dopa-backdrop/) | mod | デスクトップアプリの背景を、ゲームのような演出が出る画面に変える。送信で発射、コンボ、レベル、宝箱から背景の色違い |
 
 ![effort-autoの仕組み：依頼を送るとHaikuが難しさを判定し、考える深さを中、高、最大に切り替える](plugins/effort-auto/images/flow.png)
 
