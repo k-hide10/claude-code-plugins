@@ -10,6 +10,11 @@
       "name": "effort-auto",
       "source": "./plugins/effort-auto",
       "description": "依頼の難しさを Haiku が判定し、Claude の考える深さ（effort）を依頼ごとに自動で切り替える mod"
+    },
+    {
+      "name": "dopa-backdrop",
+      "source": "./plugins/dopa-backdrop",
+      "description": "Claude Code のデスクトップアプリの背景を、ゲームのような演出が出る画面に変える mod。送信で発射、コンボ、レベル、宝箱から背景の色違い"
     }
   ]
 }

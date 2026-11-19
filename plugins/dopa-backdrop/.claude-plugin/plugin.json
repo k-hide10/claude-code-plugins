@@ -1,0 +1,20 @@
+{
+  "name": "dopa-backdrop",
+  "version": "0.5.0",
+  "description": "Claude Code のデスクトップアプリの背景を、ゲームのような演出が出る画面に変える mod。送信で発射、コンボとフィーバー、レベル、今日のクエスト、宝箱から背景の色違いが出る",
+  "author": {
+    "name": "hideto",
+    "url": "https://github.com/k-hide10"
+  },
+  "homepage": "https://github.com/k-hide10/claude-code-plugins/tree/main/plugins/dopa-backdrop",
+  "repository": "https://github.com/k-hide10/claude-code-plugins",
+  "license": "MIT",
+  "keywords": [
+    "mod",
+    "backdrop",
+    "theme",
+    "game",
+    "japanese"
+  ],
+  "types": "./types/index.d.ts"
+}
